@@ -1,0 +1,113 @@
+==============================================================================
+EXECUCAO DE TESTES — frente Blockchain/RBB — projeto SAVITS/IBICT
+Ambiente: EVM local (eth-tester/py-evm). NAO representa integracao com a RBB.
+Data/hora da execucao: 23/09/2026 11:27:49
+==============================================================================
+deploy SavitsAssetRegistry: 0xF2E246BB76DF876Cef8b38ae84130F4F55De395b  gas=2163202
+deploy ProofAnchor: 0x2946259E0334f33A064106302415aD3391BeD384  gas=522328
+
+------------------------------------------------------------------------------
+T01 — Registrar ativo
+[T01] PASSOU  Registrar ativo (dataset)
+       esperado: ativo passa a existir e evento AssetRegistered e emitido
+       obtido  : exists=True; evento emitido=True; gas=97165
+------------------------------------------------------------------------------
+T14 — Vincular PID externo (dARK) ao ativo
+[T14] PASSOU  Vincular PID ao ativo
+       esperado: PID armazenado e recuperavel; evento PidBound emitido
+       obtido  : pid lido on-chain=ark:/00000/SIMULADO-ds-politicas; gas=74926
+------------------------------------------------------------------------------
+T02 — Registrar hash de conteudo (versao 0)
+[T02] PASSOU  Registrar hash/versao inicial
+       esperado: versao 0 criada e contador = 1
+       obtido  : versionCount=1; gas=164029
+------------------------------------------------------------------------------
+T03 — Registrar nova versao (segundo ativo: modelo)
+[T03] PASSOU  Registrar versao de modelo
+       esperado: modelo registrado com 1 versao
+       obtido  : versionCount(modelo)=1; gas=164029
+------------------------------------------------------------------------------
+T04 — Registrar evento de proveniencia (dataset -> modelo)
+[T04] PASSOU  Registrar evento de proveniencia
+       esperado: evento registrado com vinculo ao ativo de origem
+       obtido  : eventId=0; parents=1; tipo=3; gas=189112
+------------------------------------------------------------------------------
+T05 — Consultar ativo
+[T05] PASSOU  Consultar ativo
+       esperado: retorna existencia, tipo, registrante, carimbo, PID e n de versoes
+       obtido  : exists=True kind=0 createdAt=1790173675 pid=ark:/00000/SIMULADO-ds-politicas nVersions=1
+------------------------------------------------------------------------------
+T06 — Verificar integridade (objeto intacto)
+[T06] PASSOU  Verificar integridade — objeto intacto
+       esperado: found=True apontando para a versao 0
+       obtido  : found=True index=0 timestamp=1790173677
+------------------------------------------------------------------------------
+T07/T08 — Alterar objeto e detectar alteracao
+[T07] PASSOU  Alterar objeto off-chain
+       esperado: hash diferente do registrado
+       obtido  : hash original=580049719a81fa607a81… / hash alterado=458ad750328bb5e00637…
+[T08] PASSOU  Detectar alteracao
+       esperado: found=False — inconsistencia detectada
+       obtido  : found=False
+------------------------------------------------------------------------------
+T09 — Registrar nova versao do objeto alterado
+[T09] PASSOU  Registrar nova versao
+       esperado: versao 1 criada; o novo conteudo passa a verificar
+       obtido  : versionCount=2; verify(novo)=True index=1
+------------------------------------------------------------------------------
+T10 — Consultar historico
+[T10] PASSOU  Consultar historico de versoes
+       esperado: duas versoes com hashes distintos e carimbos de tempo
+       obtido  : 2 versoes: ['580049719a81', '458ad750328b']
+------------------------------------------------------------------------------
+T11 — Comportamento do contrato: certificacao e consentimento
+[T11a] PASSOU  Certificar e revogar certificacao
+       esperado: status ACTIVE(1) e depois REVOKED(2) com revokedAt preenchido
+       obtido  : status inicial=1 -> final=2; revokedAt=1790173683
+[T11b] PASSOU  Registrar e revogar consentimento
+       esperado: consentimento ativo e depois inativo, sem apagar o registro
+       obtido  : ativo apos registro=True; ativo apos revogacao=False
+------------------------------------------------------------------------------
+T12 — Cenarios de erro
+       - conta sem papel tenta registrar ativo: revertido (ed: SAR: sem permissao)
+       - registrar ativo ja existente: revertido (ed: SAR: ativo ja registrado)
+       - registrar conteudo duplicado no mesmo ativo: revertido (ed: SAR: conteudo ja registrado)
+       - evento sobre versao inexistente: revertido (ed: SAR: versao inexistente)
+       - revogar certificacao ja revogada: revertido (ed: SAR: certificado nao ativo)
+       - terceiro tenta revogar certificacao alheia: revertido (ed: SAR: sem permissao)
+       - revogar consentimento ja revogado: revertido (ed: SAR: ja revogado)
+[T12] PASSOU  Cenarios de erro e controle de acesso
+       esperado: todas revertem com mensagem explicita
+       obtido  : 7/7 reverteram
+------------------------------------------------------------------------------
+T13 — Ancoragem em lote (Merkle) e prova de inclusao
+[T13] PASSOU  Ancoragem em lote e prova de inclusao
+       esperado: inclusao verdadeira para a folha presente e falsa para a ausente
+       obtido  : presente=True; ausente=False; gas da ancoragem=93683
+
+==============================================================================
+EXPERIMENTO E2 — custo comparado: registro individual vs ancoragem em lote
+==============================================================================
+  N=     1  individual=     164,029  lote=  76,571  reducao=         2x
+  N=    10  individual=   1,640,290  lote=  76,571  reducao=        21x
+  N=   100  individual=  16,402,900  lote=  76,571  reducao=       214x
+  N=  1000  individual= 164,029,000  lote=  76,583  reducao=     2,142x
+  N= 10000  individual=1,640,290,000  lote=  76,583  reducao=    21,418x
+  N=100000  individual=16,402,900,000  lote=  76,595  reducao=   214,151x
+
+Custo por operacao (gas medido nesta execucao):
+  deploy_SavitsAssetRegistry        2,163,202
+  deploy_ProofAnchor                  522,328
+  registerEvent                       189,112
+  registerVersion                     164,029
+  certify                             162,783
+  registerConsent                     161,118
+  registerAsset                        97,165
+  anchorBatch_1000                     93,683
+  bindPid                              74,926
+  revokeCertification                  35,768
+  revokeConsent                        33,841
+
+==============================================================================
+RESULTADO: 15/15 testes passaram
+==============================================================================

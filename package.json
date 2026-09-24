@@ -1,0 +1,13 @@
+{
+  "name": "blockchain-savits",
+  "version": "0.1.0",
+  "description": "Contratos inteligentes, testes e protótipo de gateway da frente Blockchain/RBB do Projeto SAVITS (Ibict). Execução em EVM local; não integrado à RBB.",
+  "private": true,
+  "scripts": {
+    "compile": "node compile.js contracts/contracts build"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "solc": "0.8.26"
+  }
+}

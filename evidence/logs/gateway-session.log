@@ -1,0 +1,375 @@
+############################################################################
+SESSAO DE DEMONSTRACAO — IBICT Blockchain Gateway (PoC v0.1)
+Projeto SAVITS / frente Blockchain-RBB · 16/09/2026 18:22:00
+AMBIENTE: EVM local (eth-tester). NAO e a Rede Blockchain Brasil.
+############################################################################
+
+============================================================================
+### 0. Estado do servico
+GET /v1/health   (sem cabecalho Authorization)
+resposta: HTTP 200
+{
+ "status": "ok",
+ "ambiente": "EVM local (eth-tester) — NAO e a RBB",
+ "registry": "0xF2E246BB76DF876Cef8b38ae84130F4F55De395b",
+ "anchor": "0x2946259E0334f33A064106302415aD3391BeD384",
+ "bloco": 2
+}
+
+============================================================================
+### 1. Registrar o conjunto de dados como ativo
+POST /v1/assets
+requisicao:
+{
+ "id": "savits:dataset:politicas",
+ "tipo": "DATASET"
+}
+resposta: HTTP 201
+{
+ "id": "savits:dataset:politicas",
+ "assetId": "0xd256e725cf4e4553bacc60a0eb8ae4ff18091efb8b3ca3f9dc499802f84ece1a",
+ "tx": "d1bc1210b9c411f49ec418079c7411e9fea725bd04bbda63b8c219dae7cc5941",
+ "gas": 97165,
+ "bloco": 3
+}
+
+============================================================================
+### 2. Registrar o modelo como ativo
+POST /v1/assets
+requisicao:
+{
+ "id": "savits:model:impacto",
+ "tipo": "MODEL"
+}
+resposta: HTTP 201
+{
+ "id": "savits:model:impacto",
+ "assetId": "0x80cce03308389fbbcf31bdb9e0f33b549fba3fde40c3c84edd407b5ae56681ce",
+ "tx": "fae26fe776d128ef9578103c9429932ffefed15a1152c35038f49d8343eecb01",
+ "gas": 80077,
+ "bloco": 4
+}
+
+[cliente] sha256 do dataset calculado localmente: 0x458ad750328bb5e006375e115d7f5f4da931b46989edd898bcdddf360c64ea08
+[cliente] sha256 do modelo  calculado localmente: 0x2b357cf326cf1d3d545c53ae2a944b68a7c32a4ea1d3641fa72028afc1b75c50
+[cliente] os arquivos NAO sao enviados ao gateway — apenas o digest.
+
+============================================================================
+### 3. Registrar a versao 0 do dataset
+POST /v1/assets/savits:dataset:politicas/versions
+requisicao:
+{
+ "digest": "0x458ad750328bb5e006375e115d7f5f4da931b46989edd898bcdddf360c64ea08",
+ "algoritmo": "sha2-256",
+ "metadados": {
+  "titulo": "Indicadores de politicas sociais",
+  "licenca": "CC-BY-4.0",
+  "linhas": 50
+ }
+}
+resposta: HTTP 201
+{
+ "id": "savits:dataset:politicas",
+ "versao": 0,
+ "digest": "0x458ad750328bb5e006375e115d7f5f4da931b46989edd898bcdddf360c64ea08",
+ "tx": "482d44ea41be6b504b19d46cb3fa8dc4c7f60f8ea3fca893e166824b4899d1ad",
+ "gas": 164041,
+ "aviso": "registro em EVM local; nao ancorado na RBB"
+}
+
+============================================================================
+### 4. Registrar a versao 0 do modelo
+POST /v1/assets/savits:model:impacto/versions
+requisicao:
+{
+ "digest": "0x2b357cf326cf1d3d545c53ae2a944b68a7c32a4ea1d3641fa72028afc1b75c50",
+ "algoritmo": "sha2-256",
+ "metadados": {
+  "tipo": "experimental"
+ }
+}
+resposta: HTTP 201
+{
+ "id": "savits:model:impacto",
+ "versao": 0,
+ "digest": "0x2b357cf326cf1d3d545c53ae2a944b68a7c32a4ea1d3641fa72028afc1b75c50",
+ "tx": "4ea3094007cbecdce0b9147d3b8d05e16ed4c5bdd6bf0792d7bb8c4bbebb553a",
+ "gas": 164041,
+ "aviso": "registro em EVM local; nao ancorado na RBB"
+}
+
+============================================================================
+### 5. Registrar evento de proveniencia (modelo TREINADO)
+POST /v1/events
+requisicao:
+{
+ "id": "savits:model:impacto",
+ "versao": 0,
+ "tipo": "TRAINED",
+ "detalhe": "execucao de treino 2026-09-16",
+ "origens": []
+}
+resposta: HTTP 201
+{
+ "eventId": 0,
+ "tipo": "TRAINED",
+ "origens": 0,
+ "gas": 146481
+}
+
+============================================================================
+### 6. Consultar o ativo e seu historico de versoes
+GET /v1/assets/savits:dataset:politicas   (sem cabecalho Authorization)
+resposta: HTTP 200
+{
+ "id": "savits:dataset:politicas",
+ "assetId": "0xd256e725cf4e4553bacc60a0eb8ae4ff18091efb8b3ca3f9dc499802f84ece1a",
+ "tipo": "DATASET",
+ "pid": null,
+ "criadoEm": 1789582922,
+ "versoes": [
+  {
+   "versao": 0,
+   "contentHash": "0x458ad750328bb5e006375e115d7f5f4da931b46989edd898bcdddf360c64ea08",
+   "algoritmo": "sha2-256",
+   "timestamp": 1789582924,
+   "registrar": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+  }
+ ]
+}
+
+============================================================================
+### 7. Verificar integridade — arquivo INTACTO
+POST /v1/verify
+requisicao:
+{
+ "id": "savits:dataset:politicas",
+ "digest": "0x458ad750328bb5e006375e115d7f5f4da931b46989edd898bcdddf360c64ea08"
+}
+resposta: HTTP 200
+{
+ "id": "savits:dataset:politicas",
+ "digest": "0x458ad750328bb5e006375e115d7f5f4da931b46989edd898bcdddf360c64ea08",
+ "integro": true,
+ "versao": 0,
+ "registradoEm": 1789582924,
+ "conclusao": "digest confere com versao registrada"
+}
+
+[cliente] ALTERACAO APLICADA ao arquivo: um valor de indicador foi trocado
+[cliente] digest antes  : 0x458ad750328bb5e006375e115d7f5f4da931b46989edd898bcdddf360c64ea08
+[cliente] digest depois : 0xb48b39a89d0cdb7233205d67ab457ce3afa957af250244fc4f86dbe589916ba6
+
+============================================================================
+### 8. Verificar integridade — arquivo ADULTERADO
+POST /v1/verify
+requisicao:
+{
+ "id": "savits:dataset:politicas",
+ "digest": "0xb48b39a89d0cdb7233205d67ab457ce3afa957af250244fc4f86dbe589916ba6"
+}
+resposta: HTTP 200
+{
+ "id": "savits:dataset:politicas",
+ "digest": "0xb48b39a89d0cdb7233205d67ab457ce3afa957af250244fc4f86dbe589916ba6",
+ "integro": false,
+ "versao": null,
+ "registradoEm": null,
+ "conclusao": "digest NAO corresponde a nenhuma versao registrada"
+}
+
+============================================================================
+### 9. Registrar o conteudo alterado como NOVA VERSAO
+POST /v1/assets/savits:dataset:politicas/versions
+requisicao:
+{
+ "digest": "0xb48b39a89d0cdb7233205d67ab457ce3afa957af250244fc4f86dbe589916ba6",
+ "algoritmo": "sha2-256",
+ "metadados": {
+  "nota": "correcao de valor do indicador",
+  "derivadaDe": 0
+ }
+}
+resposta: HTTP 201
+{
+ "id": "savits:dataset:politicas",
+ "versao": 1,
+ "digest": "0xb48b39a89d0cdb7233205d67ab457ce3afa957af250244fc4f86dbe589916ba6",
+ "tx": "aadbf2e120b557ff568e7a5cfa5d2e15c866b42c2001a2dc2b562cde2c88723e",
+ "gas": 146941,
+ "aviso": "registro em EVM local; nao ancorado na RBB"
+}
+
+============================================================================
+### 10. Consultar historico apos a nova versao
+GET /v1/assets/savits:dataset:politicas   (sem cabecalho Authorization)
+resposta: HTTP 200
+{
+ "id": "savits:dataset:politicas",
+ "assetId": "0xd256e725cf4e4553bacc60a0eb8ae4ff18091efb8b3ca3f9dc499802f84ece1a",
+ "tipo": "DATASET",
+ "pid": null,
+ "criadoEm": 1789582922,
+ "versoes": [
+  {
+   "versao": 0,
+   "contentHash": "0x458ad750328bb5e006375e115d7f5f4da931b46989edd898bcdddf360c64ea08",
+   "algoritmo": "sha2-256",
+   "timestamp": 1789582924,
+   "registrar": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+  },
+  {
+   "versao": 1,
+   "contentHash": "0xb48b39a89d0cdb7233205d67ab457ce3afa957af250244fc4f86dbe589916ba6",
+   "algoritmo": "sha2-256",
+   "timestamp": 1789582927,
+   "registrar": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+  }
+ ]
+}
+
+============================================================================
+### 11. Verificar novamente o arquivo alterado (agora e a versao 1)
+POST /v1/verify
+requisicao:
+{
+ "id": "savits:dataset:politicas",
+ "digest": "0xb48b39a89d0cdb7233205d67ab457ce3afa957af250244fc4f86dbe589916ba6"
+}
+resposta: HTTP 200
+{
+ "id": "savits:dataset:politicas",
+ "digest": "0xb48b39a89d0cdb7233205d67ab457ce3afa957af250244fc4f86dbe589916ba6",
+ "integro": true,
+ "versao": 1,
+ "registradoEm": 1789582927,
+ "conclusao": "digest confere com versao registrada"
+}
+
+============================================================================
+### 12. Ancorar 8 objetos em UMA transacao (arvore de Merkle)
+POST /v1/proofs/batches
+requisicao:
+{
+ "digests": [
+  "0x06cd0133a04901e5217e1b2db2c738254e0bbbfc439e9753dbee3eaa331cf558",
+  "0x41c03cd8e85cc0102b050d33a5788734c1774519b6ac9d58beb829243c491ffb",
+  "0xbe508835f3907153567740497862c469a6d8293693c30dd79760506dd24a0f95",
+  "0x952e3a38e6f23d74804882c148ab900dcc7b2b80159ed0b64658b117094e3642",
+  "0xd8410aeb0f519665fc8a04983f4e9a1ccd97dbf10e47e1d338f4862573870a7e",
+  "0xb892f41942ba5f59ba9974024fc320c9e638ca56851c79b4e6aa6bb05d24c4ad",
+  "0xfca1491f8fede67a3b7a4f0cbd01975376f8bf0023e0b2822f3d8ffcf38b26ed",
+  "0x58b45182fad4d56a3caf6e3e7c0cd08f60d3b284bd562bf5bccedb9e84e01bfe"
+ ]
+}
+resposta: HTTP 201
+{
+ "batchId": 0,
+ "raiz": "0x1a5be0f15a9aff8b1347ffae4557a48f525444a751f2aeda73c12e83bb149bf3",
+ "folhas": 8,
+ "gas": 93671,
+ "recibos": [
+  {
+   "folha": "0x06cd0133a04901e5217e1b2db2c738254e0bbbfc439e9753dbee3eaa331cf558",
+   "caminho": [
+    "0x41c03cd8e85cc0102b050d33a5788734c1774519b6ac9d58beb829243c491ffb",
+    "0x81023b192c450a8d1b2d8501ff711a2ce04d662b4abde682d043a0b976e65ee1",
+    "0x0545a42e27f90eaa9335e594114103629f3d9df884b0f9951acb3c02d55beb04"
+   ]
+  },
+  {
+   "folha": "0x41c03cd8e85cc0102b050d33a5788734c1774519b6ac9d58beb829243c491ffb",
+   "caminho": [
+    "0x06cd0133a04901e5217e1b2db2c738254e0bbbfc439e9753dbee3eaa331cf558",
+    "0x81023b192c450a8d1b2d8501ff711a2ce04d662b4abde682d043a0b976e65ee1",
+    "0x0545a42e27f90eaa9335e594114103629f3d9df884b0f9951acb3c02d55beb04"
+   ]
+  },
+  {
+   "folha": "0xbe508835f3907153567740497862c469a6d8293693c30dd79760506dd24a0f95",
+   "caminho": [
+    "0x952e3a38e6f23d74804882c148ab900dcc7b2b80159ed0b64658b117094e3642",
+    "0xf7ac9c6261887718c0879379cffd2c53a84ab4491646c2cc31754587fc4551c0",
+    "0x0545a42e27f90eaa9335e594114103629f3d9df884b0f9951acb3c02d55beb04"
+   ]
+  },
+  {
+   "folha": "0x952e3a38e6f23d74804882c148ab900dcc7b2b80159ed0b64658b117094e3642",
+   "caminho": [
+    "0xbe508835f3907153567740497862c469a6d8293693c30dd79760506dd24a0f95",
+    "0xf7ac9c6261887718c0879379cffd2c53a84ab4491646c2cc31754587fc4551c0",
+    "0x0545a
+
+============================================================================
+### 13. Provar inclusao de um objeto do lote (recibo valido)
+GET /v1/proofs/0/inclusion?leaf=0x952e3a38e6f23d74804882c148ab900dcc7b2b80159ed0b64658b117094e3642&proof=0xbe508835f3907153567740497862c469a6d8293693c30dd79760506dd24a0f95,0xf7ac9c6261887718c0879379cffd2c53a84ab4491646c2cc31754587fc4551c0,0x0545a42e27f90eaa9335e594114103629f3d9df884b0f9951acb3c02d55beb04   (sem cabecalho Authorization)
+resposta: HTTP 200
+{
+ "batchId": 0,
+ "incluido": true,
+ "raiz": "0x1a5be0f15a9aff8b1347ffae4557a48f525444a751f2aeda73c12e83bb149bf3",
+ "folhas": 8,
+ "ancoradoEm": 1789582928
+}
+
+============================================================================
+### 14. Tentar provar inclusao de objeto ausente do lote
+GET /v1/proofs/0/inclusion?leaf=0xcff0813e375abea65ad91625427e98e7143e3da89461a5d7ed00c73011b4c7a8&proof=0xbe508835f3907153567740497862c469a6d8293693c30dd79760506dd24a0f95,0xf7ac9c6261887718c0879379cffd2c53a84ab4491646c2cc31754587fc4551c0,0x0545a42e27f90eaa9335e594114103629f3d9df884b0f9951acb3c02d55beb04   (sem cabecalho Authorization)
+resposta: HTTP 200
+{
+ "batchId": 0,
+ "incluido": false,
+ "raiz": "0x1a5be0f15a9aff8b1347ffae4557a48f525444a751f2aeda73c12e83bb149bf3",
+ "folhas": 8,
+ "ancoradoEm": 1789582928
+}
+
+============================================================================
+### 15. Solicitar cunhagem de PID no dARK (dependencia externa)
+POST /v1/pids
+requisicao:
+{
+ "id": "savits:dataset:politicas"
+}
+resposta: HTTP 501
+{
+ "erro": "cunhagem de PID nao implementada nesta PoC",
+ "motivo": "sem credenciais de acesso ao dARK/Hyperdrive",
+ "encaminhamento": "ver docs/INFORMACOES-NECESSARIAS.md, item 1"
+}
+
+============================================================================
+### 16. Chamada sem token institucional
+POST /v1/assets   (sem cabecalho Authorization)
+requisicao:
+{
+ "id": "x",
+ "tipo": "OTHER"
+}
+resposta: HTTP 401
+{
+ "erro": "token institucional ausente ou invalido"
+}
+
+============================================================================
+TRILHA DE AUDITORIA DO GATEWAY (registro interno de todas as chamadas)
+============================================================================
+  18:22:00  GET   /v1/health                                                     -> 200
+  18:22:00  POST  /v1/assets                                                     -> 201
+  18:22:00  POST  /v1/assets                                                     -> 201
+  18:22:00  POST  /v1/assets/savits:dataset:politicas/versions                   -> 201
+  18:22:00  POST  /v1/assets/savits:model:impacto/versions                       -> 201
+  18:22:00  POST  /v1/events                                                     -> 201
+  18:22:00  GET   /v1/assets/savits:dataset:politicas                            -> 200
+  18:22:00  POST  /v1/verify                                                     -> 200
+  18:22:00  POST  /v1/verify                                                     -> 200
+  18:22:00  POST  /v1/assets/savits:dataset:politicas/versions                   -> 201
+  18:22:00  GET   /v1/assets/savits:dataset:politicas                            -> 200
+  18:22:00  POST  /v1/verify                                                     -> 200
+  18:22:00  POST  /v1/proofs/batches                                             -> 201
+  18:22:00  GET   /v1/proofs/0/inclusion?leaf=0x952e3a38e6f23d74804882c148ab900dcc7b2b80159ed0b64658b117094e3642&proof=0xbe508835f3907153567740497862c469a6d8293693c30dd79760506dd24a0f95,0xf7ac9c6261887718c0879379cffd2c53a84ab4491646c2cc31754587fc4551c0,0x0545a42e27f90eaa9335e594114103629f3d9df884b0f9951acb3c02d55beb04 -> 200
+  18:22:00  GET   /v1/proofs/0/inclusion?leaf=0xcff0813e375abea65ad91625427e98e7143e3da89461a5d7ed00c73011b4c7a8&proof=0xbe508835f3907153567740497862c469a6d8293693c30dd79760506dd24a0f95,0xf7ac9c6261887718c0879379cffd2c53a84ab4491646c2cc31754587fc4551c0,0x0545a42e27f90eaa9335e594114103629f3d9df884b0f9951acb3c02d55beb04 -> 200
+  18:22:00  POST  /v1/pids                                                       -> 501
+  18:22:00  POST  /v1/assets                                                     -> 401
+
+Fim da sessao. Nenhum arquivo foi transmitido ao gateway em nenhum momento.

@@ -1,0 +1,16 @@
+[
+ {
+  "versao": 0,
+  "contentHash": "580049719a81fa607a81622c739d0342ca17bea3a09df26f04e5d869b0a69fda",
+  "algo": "sha2-256",
+  "timestamp": 1790173677,
+  "registrar": "0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF"
+ },
+ {
+  "versao": 1,
+  "contentHash": "458ad750328bb5e006375e115d7f5f4da931b46989edd898bcdddf360c64ea08",
+  "algo": "sha2-256",
+  "timestamp": 1790173681,
+  "registrar": "0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF"
+ }
+]

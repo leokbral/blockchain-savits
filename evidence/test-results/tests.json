@@ -1,0 +1,224 @@
+{
+ "executado_em": "2026-09-23T11:27:52",
+ "ambiente": "EVM local (eth-tester/py-evm) — NAO e a RBB",
+ "solc": "0.8.26",
+ "evmVersion": "paris",
+ "testes": [
+  {
+   "id": "T01",
+   "atividade": "A2",
+   "teste": "Registrar ativo (dataset)",
+   "entrada": "assetId=3f68807c9ed172ff5d… kind=DATASET",
+   "procedimento": "registerAsset() por conta com papel REGISTRAR",
+   "resultado_esperado": "ativo passa a existir e evento AssetRegistered e emitido",
+   "resultado_obtido": "exists=True; evento emitido=True; gas=97165",
+   "status": "PASSOU",
+   "evidencia": "evidence/logs/execution.log"
+  },
+  {
+   "id": "T14",
+   "atividade": "A2/2.3.2",
+   "teste": "Vincular PID ao ativo",
+   "entrada": "pid=ark:/00000/SIMULADO-ds-politicas",
+   "procedimento": "bindPid(); PID cunhado fora do contrato",
+   "resultado_esperado": "PID armazenado e recuperavel; evento PidBound emitido",
+   "resultado_obtido": "pid lido on-chain=ark:/00000/SIMULADO-ds-politicas; gas=74926",
+   "status": "PASSOU",
+   "evidencia": "PID SIMULADO — nao houve cunhagem real no dARK (sem credenciais)"
+  },
+  {
+   "id": "T02",
+   "atividade": "A2",
+   "teste": "Registrar hash/versao inicial",
+   "entrada": "sha256(dataset)=580049719a81fa607a81622c…",
+   "procedimento": "registerVersion() com algoritmo sha2-256",
+   "resultado_esperado": "versao 0 criada e contador = 1",
+   "resultado_obtido": "versionCount=1; gas=164029",
+   "status": "PASSOU",
+   "evidencia": "arquivo: experiments/workdir/dataset_politicas_v1.csv"
+  },
+  {
+   "id": "T03",
+   "atividade": "A2",
+   "teste": "Registrar versao de modelo",
+   "entrada": "sha256(modelo)=2b357cf326cf1d3d545c53ae…",
+   "procedimento": "registerAsset()+registerVersion() para o modelo",
+   "resultado_esperado": "modelo registrado com 1 versao",
+   "resultado_obtido": "versionCount(modelo)=1; gas=164029",
+   "status": "PASSOU",
+   "evidencia": ""
+  },
+  {
+   "id": "T04",
+   "atividade": "A2/A3",
+   "teste": "Registrar evento de proveniencia",
+   "entrada": "modelo v0 TRAINED a partir de dataset v0",
+   "procedimento": "registerEvent() com parents=[versionRef(dataset,0)]",
+   "resultado_esperado": "evento registrado com vinculo ao ativo de origem",
+   "resultado_obtido": "eventId=0; parents=1; tipo=3; gas=189112",
+   "status": "PASSOU",
+   "evidencia": ""
+  },
+  {
+   "id": "T05",
+   "atividade": "A2",
+   "teste": "Consultar ativo",
+   "entrada": "assetId=3f68807c9ed172ff5d…",
+   "procedimento": "getAsset()",
+   "resultado_esperado": "retorna existencia, tipo, registrante, carimbo, PID e n de versoes",
+   "resultado_obtido": "exists=True kind=0 createdAt=1790173675 pid=ark:/00000/SIMULADO-ds-politicas nVersions=1",
+   "status": "PASSOU",
+   "evidencia": ""
+  },
+  {
+   "id": "T06",
+   "atividade": "A2",
+   "teste": "Verificar integridade — objeto intacto",
+   "entrada": "hash recalculado do arquivo original",
+   "procedimento": "verifyAsset(assetId, sha256(arquivo))",
+   "resultado_esperado": "found=True apontando para a versao 0",
+   "resultado_obtido": "found=True index=0 timestamp=1790173677",
+   "status": "PASSOU",
+   "evidencia": ""
+  },
+  {
+   "id": "T07",
+   "atividade": "A2",
+   "teste": "Alterar objeto off-chain",
+   "entrada": "alteracao minima no CSV",
+   "procedimento": "reescrita do arquivo e novo sha256",
+   "resultado_esperado": "hash diferente do registrado",
+   "resultado_obtido": "hash original=580049719a81fa607a81… / hash alterado=458ad750328bb5e00637…",
+   "status": "PASSOU",
+   "evidencia": "arquivo: experiments/workdir/dataset_politicas_v1.csv"
+  },
+  {
+   "id": "T08",
+   "atividade": "A2",
+   "teste": "Detectar alteracao",
+   "entrada": "sha256(arquivo alterado)=458ad750328bb5e00637…",
+   "procedimento": "verifyAsset() com o novo hash",
+   "resultado_esperado": "found=False — inconsistencia detectada",
+   "resultado_obtido": "found=False",
+   "status": "PASSOU",
+   "evidencia": ""
+  },
+  {
+   "id": "T09",
+   "atividade": "A2",
+   "teste": "Registrar nova versao",
+   "entrada": "novo hash=458ad750328bb5e00637…",
+   "procedimento": "registerVersion() para o conteudo alterado",
+   "resultado_esperado": "versao 1 criada; o novo conteudo passa a verificar",
+   "resultado_obtido": "versionCount=2; verify(novo)=True index=1",
+   "status": "PASSOU",
+   "evidencia": ""
+  },
+  {
+   "id": "T10",
+   "atividade": "A2",
+   "teste": "Consultar historico de versoes",
+   "entrada": "assetId=3f68807c9ed172ff5d…",
+   "procedimento": "iteracao sobre getVersion()",
+   "resultado_esperado": "duas versoes com hashes distintos e carimbos de tempo",
+   "resultado_obtido": "2 versoes: ['580049719a81', '458ad750328b']",
+   "status": "PASSOU",
+   "evidencia": "evidence/examples/historico_dataset.json"
+  },
+  {
+   "id": "T11a",
+   "atividade": "A3",
+   "teste": "Certificar e revogar certificacao",
+   "entrada": "versionRef(modelo,0)=2f5b9a22f7d7056542…",
+   "procedimento": "certify() e depois revokeCertification()",
+   "resultado_esperado": "status ACTIVE(1) e depois REVOKED(2) com revokedAt preenchido",
+   "resultado_obtido": "status inicial=1 -> final=2; revokedAt=1790173683",
+   "status": "PASSOU",
+   "evidencia": ""
+  },
+  {
+   "id": "T11b",
+   "atividade": "A3",
+   "teste": "Registrar e revogar consentimento",
+   "entrada": "consentId + subjectRef pseudonimizado + hash do termo + hash do escopo",
+   "procedimento": "registerConsent() e depois revokeConsent()",
+   "resultado_esperado": "consentimento ativo e depois inativo, sem apagar o registro",
+   "resultado_obtido": "ativo apos registro=True; ativo apos revogacao=False",
+   "status": "PASSOU",
+   "evidencia": "revogacao e mudanca de estado, nao eliminacao — ver docs/lgpd-analysis.md"
+  },
+  {
+   "id": "T12",
+   "atividade": "A3",
+   "teste": "Cenarios de erro e controle de acesso",
+   "entrada": "7 chamadas invalidas",
+   "procedimento": "cada chamada deve reverter",
+   "resultado_esperado": "todas revertem com mensagem explicita",
+   "resultado_obtido": "7/7 reverteram",
+   "status": "PASSOU",
+   "evidencia": "conta sem papel tenta registrar ativo; registrar ativo ja existente; registrar conteudo duplicado no mesmo ativo; evento sobre versao inexistente; revogar certificacao ja revogada; terceiro tenta revogar certificacao alheia; revogar consentimento ja revogado"
+  },
+  {
+   "id": "T13",
+   "atividade": "A1/A2",
+   "teste": "Ancoragem em lote e prova de inclusao",
+   "entrada": "1000 folhas, raiz=dd4a8590f26cbcd9f0…, prova de 10 niveis",
+   "procedimento": "anchorBatch() e verifyInclusion() para folha presente e ausente",
+   "resultado_esperado": "inclusao verdadeira para a folha presente e falsa para a ausente",
+   "resultado_obtido": "presente=True; ausente=False; gas da ancoragem=93683",
+   "status": "PASSOU",
+   "evidencia": ""
+  }
+ ],
+ "gas": {
+  "deploy_SavitsAssetRegistry": 2163202,
+  "deploy_ProofAnchor": 522328,
+  "registerAsset": 97165,
+  "bindPid": 74926,
+  "registerVersion": 164029,
+  "registerEvent": 189112,
+  "certify": 162783,
+  "revokeCertification": 35768,
+  "registerConsent": 161118,
+  "revokeConsent": 33841,
+  "anchorBatch_1000": 93683
+ },
+ "benchmark": [
+  {
+   "n": 1,
+   "gas_individual": 164029,
+   "gas_lote": 76571,
+   "reducao": 2.1
+  },
+  {
+   "n": 10,
+   "gas_individual": 1640290,
+   "gas_lote": 76571,
+   "reducao": 21.4
+  },
+  {
+   "n": 100,
+   "gas_individual": 16402900,
+   "gas_lote": 76571,
+   "reducao": 214.2
+  },
+  {
+   "n": 1000,
+   "gas_individual": 164029000,
+   "gas_lote": 76583,
+   "reducao": 2141.8
+  },
+  {
+   "n": 10000,
+   "gas_individual": 1640290000,
+   "gas_lote": 76583,
+   "reducao": 21418.5
+  },
+  {
+   "n": 100000,
+   "gas_individual": 16402900000,
+   "gas_lote": 76595,
+   "reducao": 214151.1
+  }
+ ]
+}

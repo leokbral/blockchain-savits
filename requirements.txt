@@ -1,0 +1,5 @@
+# Versões com as quais a suíte de testes e a sessão de demonstração foram
+# reexecutadas e conferidas contra os registros em evidence/ (ver README).
+web3==8.0.0
+eth-tester[py-evm]==0.14.0b1
+py-evm==0.12.1b1
