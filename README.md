@@ -1,16 +1,17 @@
 # blockchain-savits
 
-Contratos inteligentes, suíte de testes e protótipo de camada de integração (gateway
-HTTP) desenvolvidos na frente Blockchain / Rede Blockchain Brasil (RBB) do Projeto
-SAVITS – Sistema de Avaliação e Validação de Impactos em Tecnologias Sociais, executado
-pelo Instituto Brasileiro de Informação em Ciência e Tecnologia (Ibict).
+Contratos inteligentes, suíte de testes, protótipo de camada de integração (gateway
+HTTP) e documentos técnicos desenvolvidos na frente Blockchain / Rede Blockchain Brasil
+(RBB) do Projeto SAVITS (Sistema de Avaliação e Validação de Impactos em Tecnologias
+Sociais), executado pelo Instituto Brasileiro de Informação em Ciência e Tecnologia (Ibict).
 
-O repositório reúne os artefatos executáveis e as evidências de execução citados no
-relatório técnico consolidado da frente. Os documentos analíticos (arquitetura, modelo
-de ameaças, análise de conformidade com a LGPD e demais) integram o relatório e não
-estão incluídos aqui.
+O repositório reúne os artefatos executáveis, as evidências de execução e os documentos
+técnicos citados no Relatório final de atividades da frente. Os documentos técnicos
+(arquitetura, modelo de ameaças, análise de conformidade com a LGPD e demais) estão em
+[`docs/`](docs/README.md), cujo índice relaciona cada documento com a atividade a que se
+refere.
 
-> **Ambiente de execução — leia antes de usar os resultados**
+> **Ambiente de execução: leia antes de usar os resultados**
 >
 > - Todos os testes, medições e a sessão de demonstração foram executados em **ambiente
 >   local** compatível com a Máquina Virtual Ethereum (EVM), provido por `eth-tester`
@@ -36,6 +37,7 @@ estão incluídos aqui.
 | `poc/integration/demo_session.py` | Sessão de demonstração que sobe o gateway e o exercita por HTTP |
 | `evidence/` | Registros das execuções: log dos testes, resultados em JSON e Markdown, medição de gás em CSV, histórico de versões e log da sessão do gateway |
 | `reproduzir.sh` | Executa compilação, testes e sessão de demonstração em sequência |
+| `docs/` | Documentos técnicos citados no Relatório final de atividades (ver `docs/README.md`) |
 
 ## Requisitos
 
@@ -55,12 +57,12 @@ pip install -r requirements.txt
 
 O script executa, nesta ordem:
 
-1. `npm ci` e `node compile.js contracts/contracts build` — recompila os contratos e
+1. `npm ci` e `node compile.js contracts/contracts build`: recompila os contratos e
    regrava `build/artifacts.json`;
-2. `python3 tests/run_tests.py` — gera os arquivos de trabalho em `experiments/workdir/`,
+2. `python3 tests/run_tests.py`: gera os arquivos de trabalho em `experiments/workdir/`,
    executa os 15 testes e o experimento de custo, e regrava `evidence/logs/execution.log`,
    `evidence/test-results/` e `evidence/examples/`;
-3. `python3 poc/integration/demo_session.py` — sobe o gateway na porta local 8899 e
+3. `python3 poc/integration/demo_session.py`: sobe o gateway na porta local 8899 e
    regrava `evidence/logs/gateway-session.log`.
 
 **A ordem importa.** A sessão de demonstração usa o conjunto de dados sintético no
@@ -88,19 +90,19 @@ Valores extraídos de `evidence/`, referentes ao ambiente local descrito acima.
 | ID | Atividade | Teste |
 |---|---|---|
 | T01 | A2 | Registrar ativo (conjunto de dados) |
-| T14 | A2 / 2.3.2 | Vincular identificador persistente ao ativo — identificador `SIMULADO` |
+| T14 | A2 / 2.3.2 | Vincular identificador persistente ao ativo, com identificador `SIMULADO` |
 | T02 | A2 | Registrar resumo criptográfico da versão inicial |
 | T03 | A2 | Registrar versão de modelo |
 | T04 | A2 / A3 | Registrar evento de proveniência (conjunto de dados → modelo) |
 | T05 | A2 | Consultar ativo |
-| T06 | A2 | Verificar integridade — objeto intacto |
+| T06 | A2 | Verificar integridade: objeto intacto |
 | T07 | A2 | Alterar objeto fora da cadeia (um caractere: `0.510` → `0.910`) |
 | T08 | A2 | Detectar a alteração |
 | T09 | A2 | Registrar nova versão |
 | T10 | A2 | Consultar histórico de versões |
 | T11a | A3 | Certificar e revogar certificação |
 | T11b | A3 | Registrar e revogar consentimento |
-| T12 | A3 | Cenários de erro e controle de acesso — 7 chamadas inválidas, todas revertidas |
+| T12 | A3 | Cenários de erro e controle de acesso: 7 chamadas inválidas, todas revertidas |
 | T13 | A1 / A2 | Ancoragem em lote de 1.000 folhas e prova de inclusão (verdadeira para folha presente, falsa para ausente) |
 
 A1 a A3 designam as atividades da frente às quais cada teste se relaciona; 2.3.2 é a
@@ -150,7 +152,7 @@ Condições de leitura desta tabela:
   raiz enviada foi calculada sobre 4.096 folhas, e o valor N foi informado ao contrato
   como contagem de folhas.
 
-**Sessão do gateway** (`evidence/logs/gateway-session.log`): 17 requisições HTTP — uma
+**Sessão do gateway** (`evidence/logs/gateway-session.log`): 17 requisições HTTP, sendo uma
 verificação de estado (numerada 0) seguida de 16 chamadas numeradas de 1 a 16. A sessão
 registrou dois ativos, suas versões e um evento de proveniência; verificou o arquivo
 intacto e o adulterado; registrou o conteúdo alterado como nova versão; ancorou 8
@@ -171,7 +173,7 @@ localmente e envia apenas o resumo.
 | POST | `/v1/verify` | Verificação de integridade de um resumo |
 | POST | `/v1/events` | Registro de evento de proveniência |
 | POST | `/v1/proofs/batches` | Ancoragem de lote e emissão de recibos com caminho de inclusão |
-| POST | `/v1/pids` | Cunhagem de identificador no dARK — **não implementada; responde 501** |
+| POST | `/v1/pids` | Cunhagem de identificador no dARK: **não implementada; responde 501** |
 
 As rotas de escrita exigem o cabeçalho `Authorization: Bearer savits-poc-token`. Esse
 valor é um marcador fixo de demonstração, não uma credencial, e não protege nada fora
@@ -192,10 +194,9 @@ do ambiente local.
 - Contratos sem auditoria, análise estática, teste de perturbação aleatória ou
   verificação formal.
 
-Referências a `docs/` presentes no código e nos registros de execução (por exemplo, na
-resposta da rota `/v1/pids`) apontam para documentos analíticos que integram o relatório
-técnico e não foram incluídos neste repositório. O texto do código e dos registros foi
-mantido como executado.
+A resposta da rota `/v1/pids`, no código e nos registros de execução, remete a
+`docs/INFORMACOES-NECESSARIAS.md`, publicado a partir da versão `v0.2.0`. O texto do código e
+dos registros foi mantido como executado.
 
 ## Licença
 
@@ -208,4 +209,5 @@ arquivos são distribuídos sob a licença MIT, conforme `LICENSE`.
 ## Citação
 
 Os metadados de citação estão em `CITATION.cff`. Para referência ao estado exato dos
-artefatos descritos no relatório técnico, cite a versão marcada `v0.1.0`.
+artefatos e documentos citados no Relatório final de atividades, cite a versão marcada
+`v0.2.0`. A versão `v0.1.0` corresponde aos artefatos executáveis, sem os documentos técnicos.

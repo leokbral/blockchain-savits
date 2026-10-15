@@ -1,16 +1,16 @@
 cff-version: 1.2.0
 message: "Para citar estes artefatos, utilize os metadados abaixo."
-title: "blockchain-savits: contratos inteligentes, testes e protótipo de gateway da frente Blockchain/RBB do Projeto SAVITS"
+title: "blockchain-savits: contratos inteligentes, testes, protótipo de camada de integração e documentos técnicos da frente Blockchain/RBB do Projeto SAVITS"
 type: software
 authors:
   - family-names: "Ferreira"
     given-names: "Leonardo Cabral Afonso"
-version: "0.1.0"
-date-released: "2026-09-24"
+version: "0.2.0"
+date-released: "2026-10-15"
 repository-code: "https://github.com/leokbral/blockchain-savits"
 license: MIT
 abstract: >-
-  Contratos inteligentes, suíte de testes, protótipo de gateway HTTP e registros de
-  execução da frente Blockchain/Rede Blockchain Brasil do Projeto SAVITS (Ibict).
+  Contratos inteligentes, suíte de testes, protótipo de gateway HTTP, registros de
+  execução e documentos técnicos da frente Blockchain/Rede Blockchain Brasil do Projeto SAVITS (Ibict).
   Todos os experimentos foram executados em ambiente local compatível com a EVM;
   nenhum foi executado na Rede Blockchain Brasil.
